@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Table, Button } from "react-bootstrap";
 import LeiturasDataService from "./services/leituras.services";
 import EmpresasDataService from "./services/empresas.services";
+import { ExternalLink } from 'react-external-link';
 import { BrowserRouter, Routes, Link, Route, Switch } from 'react-router-dom';
 import { flushSync } from "react-dom";
 import axios from "axios";
@@ -13,13 +14,13 @@ const ListLeitura = ({ getLeituraId }) => {
         getLeituras();
         console.log(empresas)
     }, []);
-  
+
     const getLeituras = async () => {
       const data = await LeiturasDataService.getAllLeituras()
       //console.log(data.docs);
       setLeituras(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
     };
-    
+
     const getEmpresasData = async (idcnpj) => {
       const datapj = await EmpresasDataService.getEmpresas(idcnpj)
       console.log("dentro do get: " +datapj.docs);
@@ -43,30 +44,30 @@ const ListLeitura = ({ getLeituraId }) => {
     const convertMesAno =  (nftrecho) => {
       if (nftrecho){
         return nftrecho.substr(2,4)
-        } 
+        }
     }
 
     const cnpjNota =  (nfcnpj) => {
       if (nfcnpj){
         return nfcnpj.substr(6,14)
-        } 
+        }
     }
 
     const numIDNota =  (IDnota) => {
       if (IDnota){
         return IDnota.substr(25,9)
-        } 
+        }
     }
 
     const consultCNPF = (cadastro) => {
       const api = axios.create({
-        baseURL: 'https://receitaws.com.br/v1/cnpj/${cadastro}', 
+        baseURL: 'https://receitaws.com.br/v1/cnpj/${cadastro}',
         timeout: 1000,
         headers: {'X-Custom-Header': 'foobar'}
       })
       //if(cadastro) {
        // fetch('https://receitaws.com.br/v1/cnpj/${cadastro}').then((res)=>res.json()).then((res) =>{
-       const response =  api.get('')  
+       const response =  api.get('')
        console.log(response.data);
         //})
       //}
@@ -76,7 +77,7 @@ const ListLeitura = ({ getLeituraId }) => {
        // console.log("dado passado: "+cadastropj)
       //  if(!isNaN(cadastropj) && (cadastropj.toString.length === 14 )){
         if(!isNaN(cadastropj)){
-        
+
           await getEmpresasData(cadastropj)
           console.log("dados empresas: "+empresas)
         }else {
@@ -85,11 +86,11 @@ const ListLeitura = ({ getLeituraId }) => {
       }
       //if(cadastro) {
        // fetch('https://receitaws.com.br/v1/cnpj/${cadastro}').then((res)=>res.json()).then((res) =>{
-    //   const response =  api.get('')  
+    //   const response =  api.get('')
     //   console.log(response.data);
         //})
       //}
-  
+
 
     const convertDate = (date) => {
         // whatever formatting you want to do can be done here
@@ -104,10 +105,10 @@ const ListLeitura = ({ getLeituraId }) => {
       width:'100%',
       marginBottom:'10px'
     }
-    
-    
-    
-    
+
+
+
+
     return (
         <>
           <div className="mb-2">
@@ -115,7 +116,7 @@ const ListLeitura = ({ getLeituraId }) => {
               Refresh List
             </Button>
           </div>
-    
+
           {/* <pre>{JSON.stringify(books, undefined, 2)}</pre>} */}
           <Table striped bordered hover size="sm">
             <thead>
@@ -135,15 +136,16 @@ const ListLeitura = ({ getLeituraId }) => {
             </thead>
             <tbody>
               {leituras.map((doc, index) => {
-               
+
                 return (
                   <tr key={doc.id}>
                     <td>{index + 1}</td>
                     <td>A{/*{doc.uideng}*/}</td>
                     <td>{doc.emaillog}</td>
                     <td>{!doc.status ?  "Aguarde.. (****)"  : doc.status}</td>
-                    <td><Link to={{ pathname: doc.urlQR  }} target="_blank" >Link SEFAZ</Link></td>
-                    <td style={{fontSize: '12px', fontFamily:'Arial'}}> { !convertOnlyNF(doc.urlQR.split('?p=')[1]) ? doc.urlQR : convertOnlyNF(doc.urlQR.split('?p=')[1]) } 
+                    <td><ExternalLink href={ doc.urlQR  }> <span>SEFAZ</span> </ExternalLink></td>
+
+                    <td style={{fontSize: '12px', fontFamily:'Arial'}}> { !convertOnlyNF(doc.urlQR.split('?p=')[1]) ? doc.urlQR : convertOnlyNF(doc.urlQR.split('?p=')[1]) }
                     <br/> ANO/MES: { !convertOnlyNF(doc.urlQR.split('?p=')[1]) ? convertMesAno(doc.urlQR) : convertMesAno(convertOnlyNF(doc.urlQR.split('?p=')[1])) }
                     <br/> CNPJ: { !convertOnlyNF(doc.urlQR.split('?p=')[1]) ? cnpjNota(doc.urlQR) : cnpjNota(convertOnlyNF(doc.urlQR.split('?p=')[1])) }
                     <br/> Empresa:  { /*  !convertOnlyNF(doc.urlQR.split('?p=')[1]) ? consultlocalCNPJ(cnpjNota(doc.urlQR)) : consultlocalCNPJ(cnpjNota(convertOnlyNF(doc.urlQR.split('?p=')[1]))) */ }
@@ -151,8 +153,8 @@ const ListLeitura = ({ getLeituraId }) => {
                       <br /> { doc.id }
                      </td>
                     <td>{convertDate(doc.readedAt.toDate())}</td>
-                    
-                    {/* 
+
+                    {/*
                     <td>{doc.status}</td>
                     <td><Link to={{ pathname: {doc.urlQR}  }} target="_blank" /></td>
                      */}
@@ -170,7 +172,7 @@ const ListLeitura = ({ getLeituraId }) => {
                         onClick={(e) => deleteHandler(doc.id)}
                       >
                         Delete
-                      </Button> 
+                      </Button>
                     </td>
                   </tr>
                 );
